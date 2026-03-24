@@ -1,75 +1,65 @@
-# 🚀 Task Manager API
+# Task Manager API
 
-A fully-featured, production-ready REST API for Task Management. This project bridges the gap between basic CRUD applications and scalable, enterprise architectures by implementing industry-standard security, performance tuning, and cloud integration.
+## Overview
+A REST API for task management built with **Spring Boot 3**. The backend is designed to handle core operations securely while integrating **JWT Authentication** for stateless user sessions. Data is persisted in **PostgreSQL**, with **Redis** used to cache frequently accessed dashboard metrics. File attachments are stored securely in **Amazon S3**. The application is containerized using **Docker** to ensure consistent deployments across AWS environments.
 
-## ✨ Advanced System Features 
-- **Security (Zero Trust):** Stateless JWT (JSON Web Token) Authentication with Role-Based Access Control (`USER` & `ADMIN`).
-- **Cloud Storage:** Amazon S3 integration using `AWS SDK v2` for dynamic `MultipartFile` uploads.
-- **Performance (Caching):** Integrated `@EnableCaching` (ConcurrentMapCache) to aggressively reduce database lookups on the Analytics Dashboard.
-- **Advanced Data Queries:** Implementation of `Spring Data JPA Specifications` (Criteria API) to support dynamic filtering, sorting, and keyword searching across thousands of rows.
-- **Background Automation:** Cron Job utilizing `@Scheduled` to proactively scan and isolate overdue tasks without blocking the main event loop.
-- **Robust Error Handling:** A centralized `@RestControllerAdvice` Global Exception Handler to capture constraint violations (`@Future`) and AWS timeouts into structured HTTP 400/500 JSON payloads.
+## Live Demo / API Documentation
 
-## Tech Stack
+Interact with the live, deployed API via Swagger UI:
 
-- **Java 17** + **Spring Boot 3.2**
-- **Spring Security** (BCrypt & JWT)
-- **Database:** **PostgreSQL hosted via Amazon RDS**
-- **Cloud Infrastructure:** **AWS EC2** (Application Server) + **AWS S3** (Object Storage)
-- **SpringDoc OpenAPI (Swagger)** (API Documentation)
-- **Docker** (Containerized API)
+- **AWS Deployment:** [http://13.126.55.172:8080/swagger-ui/index.html#/](http://13.126.55.172:8080/swagger-ui/index.html#/)
+- **Render Deployment:** [https://task-manager-api-live.onrender.com/swagger-ui.html](https://task-manager-api-live.onrender.com/swagger-ui.html)
 
-## ☁️ Cloud Architecture (Deployment Strategy)
-Unlike basic student CRUD projects that run everything locally, this project employs a **highly available, decoupled microservice pattern** on AWS:
-1. **Compute Layer:** The Spring Boot API is containerized using Docker and runs on an **AWS EC2** instance, handling all business logic and JWT validation.
-2. **Data Layer:** The database is completely decoupled using **Amazon RDS (PostgreSQL)**. EC2 communicates with RDS securely over an internal AWS VPC via tight Security Groups, ensuring the database is not exposed to the public internet.
+## Key Features
+- **JWT Authentication:** Secure, stateless endpoint protection using JSON Web Tokens.
+- **Role-Based Access Control (RBAC):** Granular authorization mechanisms supporting `USER` and `ADMIN` roles.
+- **Task CRUD Operations:** Complete lifecycle management for task entities.
+- **Filtering & Pagination:** Dynamic query execution using Spring Data JPA Specifications.
+- **Soft Delete:** Logical record deletion to preserve data integrity and analytics.
+- **Redis Caching:** Memory-based caching layer to optimize the dashboard analytics endpoint.
+- **AWS S3 Integration:** Secure multipart file uploads for task attachments.
+- **Automated Scheduler:** Spring `@Scheduled` cron jobs to identify and isolate overdue tasks asynchronously.
+- **Global Exception Handling:** Centralized `@RestControllerAdvice` to format error responses system-wide.
 
-## Quick Start
+## System Architecture
 
-### 1. Clone & Configure
-```bash
-cp .env.example .env
-# Edit .env with your database credentials
-```
+The application strictly adheres to a layered architecture pattern. This design enforces strong separation of concerns, which makes the codebase highly maintainable, testable, and naturally scalable:
+- **Controller Layer:** Intercepts HTTP requests, validates incoming DTO payloads, and routes them to the business logic layer.
+- **Service Layer:** Houses the core business logic, transaction management, and coordinates external service calls (e.g., AWS S3, Redis).
+- **Repository Layer:** Interfaces with PostgreSQL using Spring Data JPA for persistence and querying.
+- **Database Layer:** The underlying persistent data store hosted on Amazon RDS.
 
-### 2. Run with Docker
-```bash
-docker-compose up --build
-```
+## Authentication Flow
 
-### 3. Run Locally (without Docker)
-```bash
-# Ensure PostgreSQL is running with a 'taskmanager' database
-mvn spring-boot:run
-```
-
-### 4. Access
-- **API**: http://localhost:8080
-- **Swagger UI**: http://localhost:8080/swagger-ui.html
+This API utilizes a stateless JWT scheme:
+1. **Login:** The client submits credentials to `/api/auth/login`. Upon successful authentication, the server generates and issues a signed JWT.
+2. **Token Passing:** Subsequent requests must include the JWT in the `Authorization: Bearer <token>` HTTP header.
+3. **Validation:** A custom Spring Security filter intercepts requests to protected endpoints, extracting and validating the token signature and expiration.
+4. **Stateless Operation:** No session data is stored on the server. This statelessness significantly improves horizontal scalability, as any server instance can validate requests independently without relying on a shared session store.
 
 ## API Endpoints
 
 ### Auth (Public)
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/api/auth/register` | Register new user |
-| POST | `/api/auth/login` | Login & get JWT |
+| POST | `/api/auth/register` | Register a new user account |
+| POST | `/api/auth/login` | Authenticate and retrieve JWT |
 
-### Tasks (JWT Required)
+### Tasks (Protected)
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/api/tasks` | Create task |
-| GET | `/api/tasks` | List tasks (filtered + paginated) |
-| GET | `/api/tasks/{id}` | Get task by ID |
-| PUT | `/api/tasks/{id}` | Update task |
-| DELETE | `/api/tasks/{id}` | Soft delete task |
-| GET | `/api/tasks/search?keyword=` | Search tasks |
-| GET | `/api/tasks/dashboard` | Task stats |
-| POST | `/api/tasks/{id}/upload` | Upload file attachment |
+| POST | `/api/tasks` | Create a new task |
+| GET | `/api/tasks` | List tasks (supports filtering & pagination) |
+| GET | `/api/tasks/{id}` | Retrieve task details by ID |
+| PUT | `/api/tasks/{id}` | Update an existing task |
+| DELETE | `/api/tasks/{id}` | Soft delete a task |
+| GET | `/api/tasks/search?keyword=value` | Search tasks by keyword |
+| GET | `/api/tasks/dashboard` | Retrieve cached task statistics |
+| POST | `/api/tasks/{id}/upload` | Upload a file attachment to S3 |
 
-### Query Parameters (GET /api/tasks)
-| Param | Type | Default | Example |
-|-------|------|---------|---------|
+### Query Parameters (GET `/api/tasks`)
+| Parameter | Type | Default | Example |
+|-----------|------|---------|---------|
 | `status` | Enum | — | `TODO`, `IN_PROGRESS`, `DONE` |
 | `priority` | Enum | — | `LOW`, `MEDIUM`, `HIGH` |
 | `page` | int | 0 | `0` |
@@ -78,23 +68,37 @@ mvn spring-boot:run
 | `sortDir` | String | `desc` | `asc` |
 
 ## Project Structure
-```
+```text
 src/main/java/com/taskmanager/
-├── controller/     # REST endpoints
-├── service/        # Business logic
-├── repository/     # Database queries
-├── entity/         # JPA entities + enums
-├── dto/            # Request/Response objects
-├── security/       # JWT auth
-├── config/         # Security, Swagger config
-├── exception/      # Global error handling
-├── scheduler/      # Cron jobs
-└── util/           # Helpers
+├── controller/     # REST API controllers
+├── service/        # Business logic and transactions
+├── repository/     # Data access layer (Spring Data JPA)
+├── entity/         # JPA entities and enums
+├── dto/            # Request and Response mapping objects
+├── security/       # JWT filters and authorization logic
+├── config/         # Security, Redis, and Swagger configurations
+├── exception/      # Global exception handlers
+├── scheduler/      # Scheduled CRON jobs
+└── util/           # Helper classes and mappers
 ```
 
-## Build & Test
+## Quick Start & Build
+
+### 1. Environment Configuration
+Copy the sample environment file and insert your PostgreSQL credentials:
 ```bash
-mvn clean compile    # Compile
-mvn test             # Run unit tests
-mvn clean package    # Build JAR
+cp .env.example .env
+```
+
+### 2. Build & Run Locally
+Ensure you have a PostgreSQL instance running locally with a database named `taskmanager`.
+```bash
+mvn clean install
+mvn spring-boot:run
+```
+
+### 3. Build & Run via Docker
+To easily spin up the API and the PostgreSQL database simultaneously using containers:
+```bash
+docker-compose up --build
 ```
