@@ -1,7 +1,7 @@
 # Task Manager API
 
 ## Overview
-An **AI-powered** REST API for task management built with **Spring Boot 3** and **Google Gemini**. The backend is designed to handle core operations securely while integrating **JWT Authentication** for stateless user sessions. Data is persisted in **PostgreSQL**, with **Redis** used as a distributed cache for frequently accessed dashboard metrics (with auto-TTL of 10 minutes). File attachments are stored securely in **Amazon S3** with a local storage fallback. AI processing is fully asynchronous using a bounded `ThreadPoolTaskExecutor` to ensure zero latency impact on user operations. The application is containerized using **Docker** with Docker Compose orchestrating PostgreSQL, Redis, and the application. A **React** frontend with a glassmorphism dark-mode UI provides an interview-ready demo experience.
+An **AI-powered, asynchronous backend system** that enhances task management with intelligent summarization, classification, and tagging using LLM APIs. The backend is designed to handle core operations securely while integrating **JWT Authentication** for stateless user sessions. Data is persisted in **PostgreSQL**, with **Redis** used as a distributed cache for frequently accessed dashboard metrics (with auto-TTL of 10 minutes). File attachments are stored securely in **Amazon S3** with a local storage fallback. AI processing is fully asynchronous using a bounded `ThreadPoolTaskExecutor` to ensure zero latency impact on user operations. The application is containerized using **Docker** with Docker Compose orchestrating PostgreSQL, Redis, and the application. A **React** frontend with a glassmorphism dark-mode UI provides an interview-ready demo experience.
 
 ## Live Demo / API Documentation
 
@@ -26,6 +26,20 @@ Interact with the live, deployed API via Swagger UI:
 - **Async AI Processing:** Spring `@Async` with bounded `ThreadPoolTaskExecutor` — AI calls never block the API response.
 - **React Frontend:** Dark-mode glassmorphism UI with dashboard charts (Recharts), AI insight panels, shimmer loading states, and RBAC-aware sidebar.
 
+## 🧠 AI Engineering Design
+- LLM Integration using Google Gemini API
+- Zero-shot prompt engineering with strict JSON schema enforcement
+- Asynchronous processing using bounded ThreadPoolTaskExecutor
+- Fail-fast timeout handling (15s) with graceful degradation
+- Structured output parsing (summary, priority, tags)
+- Retry mechanism via manual re-trigger endpoint
+
+## ⚠️ AI Reliability & Failure Handling
+- AI processing failures do not impact core task creation flow
+- Errors captured in `aiErrorMessage` field for observability
+- Timeout protection ensures API responsiveness under slow LLM responses
+- Manual retry endpoint allows reprocessing failed tasks
+
 ## System Architecture
 
 The application strictly adheres to a layered architecture pattern. This design enforces strong separation of concerns, which makes the codebase highly maintainable, testable, and naturally scalable:
@@ -34,6 +48,14 @@ The application strictly adheres to a layered architecture pattern. This design 
 - **Repository Layer:** Interfaces with PostgreSQL using Spring Data JPA for persistence and querying.
 - **Caching Layer:** Redis-backed distributed cache for hot-path analytics (dashboard). Uses Spring Cache abstraction — swappable with zero code changes.
 - **Database Layer:** The underlying persistent data store (PostgreSQL for production, H2 in-memory for development).
+
+## 🏗️ Design Decisions
+- Chose async processing over synchronous LLM calls to eliminate user-facing latency.
+- Used bounded thread pool to prevent resource exhaustion under high load (Queue size capped at 50).
+- Leveraged Redis caching for read-heavy dashboard endpoints with tenant-isolated eviction.
+- Maintained stateless authentication for seamless horizontal scalability.
+- Defaulted to `@Version` JPA Optimistic Locking to prevent "Lost Updates" in high-concurrency environments.
+- **Trade-off:** AI insights are eventually consistent (not real-time) due to async processing tradeoffs.
 
 ## Authentication Flow
 
