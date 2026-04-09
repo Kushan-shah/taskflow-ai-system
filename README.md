@@ -3,12 +3,14 @@
 ## Overview
 An **AI-augmented backend system with asynchronous LLM processing** that enhances task management with intelligent summarization, classification, and tagging using LLM APIs. The backend is designed to handle core operations securely while integrating **JWT Authentication** for stateless user sessions. Data is persisted in **PostgreSQL**, with **Redis** used as a distributed cache for frequently accessed dashboard metrics (with auto-TTL of 10 minutes). File attachments are stored securely in **Amazon S3** with a local storage fallback. AI processing is fully asynchronous using a bounded `ThreadPoolTaskExecutor` to ensure zero latency impact on user operations. The application is containerized using **Docker** with Docker Compose orchestrating PostgreSQL, Redis, and the application. A **React** frontend with a glassmorphism dark-mode UI provides an interview-ready demo experience.
 
-## Live Demo / API Documentation
+## 🌐 Live Deployments & Cross-Repository Links
 
-Interact with the live, deployed API via Swagger UI:
+This project is built as a fully decoupled microservice architecture.
 
-- **AWS Deployment:** [http://13.126.55.172/swagger-ui/index.html#/](http://13.126.55.172/swagger-ui/index.html#/)
-- **Render Deployment:** [https://task-manager-api-live.onrender.com/swagger-ui.html](https://task-manager-api-live.onrender.com/swagger-ui.html)
+- **Frontend Application (Live):** [https://taskflow-ui-two.vercel.app/](https://taskflow-ui-two.vercel.app/)
+- **Frontend Source Code:** [https://github.com/Kushan-shah/TaskFlow-UI](https://github.com/Kushan-shah/TaskFlow-UI)
+- **Backend API (Swagger Docs):** [https://task-manager-api-live.onrender.com/swagger-ui/index.html#/](https://task-manager-api-live.onrender.com/swagger-ui/index.html#/)
+- **Backend Source Code:** [https://github.com/Kushan-shah/TaskFlow-AI](https://github.com/Kushan-shah/TaskFlow-AI)
 
 ## Key Features
 - **JWT Authentication:** Secure, stateless endpoint protection using JSON Web Tokens.
