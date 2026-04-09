@@ -1,15 +1,16 @@
-# Task Manager API
+# TaskFlow AI Backend
 
 ## Overview
 An **AI-augmented backend system with asynchronous LLM processing** that enhances task management with intelligent summarization, classification, and tagging using LLM APIs. The backend is designed to handle core operations securely while integrating **JWT Authentication** for stateless user sessions. Data is persisted in **PostgreSQL**, with **Redis** used as a distributed cache for frequently accessed dashboard metrics (with auto-TTL of 10 minutes). File attachments are stored securely in **Amazon S3** with a local storage fallback. AI processing is fully asynchronous using a bounded `ThreadPoolTaskExecutor` to ensure zero latency impact on user operations. The application is containerized using **Docker** with Docker Compose orchestrating PostgreSQL, Redis, and the application. A **React** frontend with a glassmorphism dark-mode UI provides an interview-ready demo experience.
 
 ## 🌐 Live Deployments & Cross-Repository Links
 
-This project is built as a fully decoupled microservice architecture.
+This project is built as a fully decoupled frontend-backend architecture (service-oriented).
 
 - **Frontend Application (Live):** [https://taskflow-ui-two.vercel.app/](https://taskflow-ui-two.vercel.app/)
 - **Frontend Source Code:** [https://github.com/Kushan-shah/TaskFlow-UI](https://github.com/Kushan-shah/TaskFlow-UI)
-- **Backend API (Swagger Docs):** [https://task-manager-api-live.onrender.com/swagger-ui/index.html#/](https://task-manager-api-live.onrender.com/swagger-ui/index.html#/)
+- **Primary Backend API (AWS EC2):** [http://65.2.191.152:8080/swagger-ui/index.html#/](http://65.2.191.152:8080/swagger-ui/index.html#/)
+- **Fallback Backend API (Render):** [https://task-manager-api-live.onrender.com/swagger-ui/index.html#/](https://task-manager-api-live.onrender.com/swagger-ui/index.html#/)
 - **Backend Source Code:** [https://github.com/Kushan-shah/TaskFlow-AI](https://github.com/Kushan-shah/TaskFlow-AI)
 
 ## Key Features
@@ -33,9 +34,14 @@ This project is built as a fully decoupled microservice architecture.
 - Designed prompts to enforce strict JSON output, ensuring deterministic parsing and minimizing hallucination risks
 - Implemented defensive JSON parsing with validation to prevent malformed AI responses
 - Asynchronous processing using bounded ThreadPoolTaskExecutor
+- AI processing is fully isolated from core transactional flow, preventing cascading failures or thread blocking under slow LLM responses
 - Fail-fast timeout handling (10s) with graceful degradation
 - Structured output parsing (summary, priority, tags)
 - Retry mechanism via manual re-trigger endpoint
+
+## 🛡️ System Reliability
+- AI endpoints can be rate-limited to prevent abuse and control external API cost spikes
+- Stateless JWT authorization scales horizontally across multiple servers without sticky sessions
 
 ## ⚠️ AI Reliability & Failure Handling
 - AI processing failures do not impact core task creation flow
