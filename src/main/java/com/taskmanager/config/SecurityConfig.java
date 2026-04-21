@@ -88,7 +88,9 @@ public class SecurityConfig {
                 "http://13.126.55.172",   // AWS EC2
                 "https://task-manager-api-live.onrender.com",
                 "https://taskflow-ui-two.vercel.app", // The Vercel Frontend
-                "https://*.vercel.app" // Fallback for any other Vercel links
+                "https://*.vercel.app", // Fallback for any other Vercel links
+                "https://taskflow.kushan.codes", // New Custom Domain
+                "https://*.kushan.codes" // Catch-all for any other subdomains
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
