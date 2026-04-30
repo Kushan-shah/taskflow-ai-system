@@ -14,9 +14,7 @@ services:
       JWT_SECRET: ${JWT_SECRET:-mySecretKeyForJWTTokenGenerationThatIsLongEnoughForHS256Algorithm12345}
       
       # Using external remote Redis (e.g. Upstash)
-      REDIS_HOST: ${REDIS_HOST}
-      REDIS_PORT: ${REDIS_PORT}
-      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      REDIS_URL: ${REDIS_URL}
       
       AWS_ACCESS_KEY: ${AWS_ACCESS_KEY:-}
       AWS_SECRET_KEY: ${AWS_SECRET_KEY:-}
