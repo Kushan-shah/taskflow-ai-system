@@ -1,0 +1,50 @@
+TaskFlow AI — Smart Task Manager
+Copyright 2024-2026 Kushan Shah
+
+This product includes software developed by Kushan Shah
+(https://github.com/Kushan-shah).
+
+========================================================================
+Third-Party Notices
+========================================================================
+
+This project uses the following open-source libraries and services:
+
+Spring Boot (https://spring.io/projects/spring-boot)
+  Licensed under the Apache License, Version 2.0
+
+Spring Security (https://spring.io/projects/spring-security)
+  Licensed under the Apache License, Version 2.0
+
+Spring Data JPA (https://spring.io/projects/spring-data-jpa)
+  Licensed under the Apache License, Version 2.0
+
+Spring Data Redis (https://spring.io/projects/spring-data-redis)
+  Licensed under the Apache License, Version 2.0
+
+PostgreSQL JDBC Driver (https://jdbc.postgresql.org/)
+  Licensed under the BSD 2-Clause License
+
+Lettuce — Redis Client (https://lettuce.io/)
+  Licensed under the Apache License, Version 2.0
+
+JJWT — JSON Web Token for Java (https://github.com/jwtk/jjwt)
+  Licensed under the Apache License, Version 2.0
+
+AWS SDK for Java v2 (https://github.com/aws/aws-sdk-java-v2)
+  Licensed under the Apache License, Version 2.0
+
+SpringDoc OpenAPI (https://springdoc.org/)
+  Licensed under the Apache License, Version 2.0
+
+Project Lombok (https://projectlombok.org/)
+  Licensed under the MIT License
+
+Google Gemini API
+  Used under Google's API Terms of Service
+
+React (https://react.dev/)
+  Licensed under the MIT License
+
+Vite (https://vitejs.dev/)
+  Licensed under the MIT License
