@@ -1,53 +1,26 @@
 version: '3.8'
 
 services:
-  db:
-    image: postgres:15
-    environment:
-      POSTGRES_DB: taskmanager
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   app:
     build: .
     ports:
       - "8080:8080"
     environment:
-      DB_URL: jdbc:postgresql://db:5432/taskmanager
-      DB_USER: postgres
-      DB_PASSWORD: postgres
+      # Database (AWS RDS or External)
+      DB_URL: ${DB_URL}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      
       JWT_SECRET: ${JWT_SECRET:-mySecretKeyForJWTTokenGenerationThatIsLongEnoughForHS256Algorithm12345}
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
+      
+      # Using external remote Redis (e.g. Upstash)
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      
       AWS_ACCESS_KEY: ${AWS_ACCESS_KEY:-}
       AWS_SECRET_KEY: ${AWS_SECRET_KEY:-}
       AWS_BUCKET_NAME: ${AWS_BUCKET_NAME:-task-manager-uploads}
       AWS_REGION: ${AWS_REGION:-ap-south-1}
+      
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-
-volumes:
-  pgdata:
